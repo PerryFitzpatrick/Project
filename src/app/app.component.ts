@@ -10,7 +10,7 @@ import { RouterOutlet } from '@angular/router';
 export class AppComponent {
   title = 'Project';
 
-  sayHi() {
-    alert('Perry')
-  }
+  // sayHi() {
+  //   alert('Perry')
+  // }
 }
