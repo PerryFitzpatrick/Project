@@ -1,21 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [HttpClientModule, CommonModule],
+  imports: [CommonModule],
   templateUrl: './about.component.html',
-  styleUrls: ['./about.component.scss']
+  styleUrl: './about.component.scss'
 })
 export class AboutComponent implements OnInit {
-  apiData: any = null;
-  loading: boolean = false;
-  error: string = '';
-
-  private readonly apiBaseUrl = 'https://perry-api.sawatzky-perry.workers.dev';
+  photos: any[] = [];
+  loading = true;
+  error = '';
 
   constructor(
     private http: HttpClient,
@@ -23,30 +21,50 @@ export class AboutComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Automatically fetch data when component loads
-    this.fetchHelloData();
+    this.loadPhotos();
   }
 
-  fetchHelloData() {
+  goBack() {
+    this.router.navigate(['/'], { replaceUrl: true });
+  }
+
+  loadPhotos() {
     this.loading = true;
     this.error = '';
 
-    this.http.get(`${this.apiBaseUrl}/hello`, { responseType: 'text' })
+    this.http.get('https://perry-click-backend.pfitzpatrick.workers.dev/photos')
       .subscribe({
-        next: (data) => {
-          this.apiData = JSON.parse(data);
+        next: (response: any) => {
+          this.photos = response.data || [];
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error fetching hello data:', error);
-          this.error = 'Error fetching data from backend';
+          this.error = 'Failed to load photos: ' + (error.error?.message || 'Unknown error');
           this.loading = false;
+          console.error('Error loading photos:', error);
         }
       });
   }
 
-  goBack() {
-    // Use replaceUrl to avoid adding to browser history
-    this.router.navigate(['/'], { replaceUrl: true });
+  getPhotoUrl(photoId: number): string {
+    return `https://perry-click-backend.pfitzpatrick.workers.dev/photo/${photoId}`;
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 }

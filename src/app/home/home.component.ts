@@ -13,11 +13,12 @@ import { UserProfileModalComponent } from '../auth/user-profile-modal/user-profi
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
-  response: string = '';
-  showLoginModal = false;
-  showUserProfileModal = false;
   isLoggedIn = false;
   currentUser: any = null;
+  showLoginModal = false;
+  showUserProfileModal = false;
+  response = '';
+  uploadStatus = '';
 
   constructor(
     private http: HttpClient,
@@ -78,15 +79,65 @@ export class HomeComponent {
     console.log('Login successful:', userData);
   }
 
-  onUserUpdated(updatedUser: any) {
-    console.log('onUserUpdated called with:', updatedUser);
-    this.currentUser = updatedUser;
+  onUserUpdated(user: any) {
+    this.currentUser = user;
+    console.log('User updated:', user);
   }
 
   logout() {
     localStorage.removeItem('authToken');
     this.isLoggedIn = false;
     this.currentUser = null;
+  }
+
+  handleUpload() {
+    console.log('Upload button clicked! User:', this.currentUser?.username);
+    // TODO: Implement actual file upload functionality
+  }
+
+  handleFileUpload(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      this.uploadStatus = 'Please select an image file';
+      return;
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.uploadStatus = 'File size must be less than 5MB';
+      return;
+    }
+
+    this.uploadStatus = 'Uploading...';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('username', this.currentUser?.username || '');
+
+    this.http.post('https://perry-click-backend.pfitzpatrick.workers.dev/upload', formData)
+      .subscribe({
+        next: (response: any) => {
+          this.uploadStatus = 'Upload successful!';
+          console.log('Upload response:', response);
+          // Clear the file input
+          event.target.value = '';
+          // Clear status after 3 seconds
+          setTimeout(() => {
+            this.uploadStatus = '';
+          }, 3000);
+        },
+        error: (error) => {
+          this.uploadStatus = 'Upload failed: ' + (error.error?.message || 'Unknown error');
+          console.error('Upload error:', error);
+          // Clear status after 5 seconds
+          setTimeout(() => {
+            this.uploadStatus = '';
+          }, 5000);
+        }
+      });
   }
 
   private checkAuthStatus() {

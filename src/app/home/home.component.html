@@ -225,6 +225,48 @@
     color: #374151;
   }
 
+  .upload-button {
+    margin-top: 2rem;
+    padding: 12px 24px;
+    background: var(--bright-blue);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+  }
+
+  .upload-button:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  }
+
+  .upload-status {
+    margin-top: 1rem;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .upload-status.success {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .upload-status.error {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .upload-status.loading {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
   @media screen and (max-width: 650px) {
     .content {
       flex-direction: column;
@@ -263,6 +305,24 @@
       <button (click)="callBackend()">Test Backend</button>
       <button (click)="navigateToAbout()">Hello Backend → About</button>
       <div>{{ response }}</div>
+    </div>
+  </div>
+
+  <!-- Upload button - only show when logged in -->
+  <div *ngIf="isLoggedIn" style="text-align: center;">
+    <input 
+      type="file" 
+      id="fileInput" 
+      accept=".jpg,.jpeg,.png,.gif" 
+      (change)="handleFileUpload($event)" 
+      style="display: none;"
+      #fileInput
+    >
+    <button class="upload-button" (click)="fileInput.click()">
+      📷 Upload Photo
+    </button>
+    <div *ngIf="uploadStatus" class="upload-status">
+      {{ uploadStatus }}
     </div>
   </div>
 </main>

@@ -84,6 +84,100 @@ export default {
         return new Response(JSON.stringify({ message: 'Login successful', status: 'success', token: jwt }), { status: 200, headers: corsHeaders });
       }
 
+      // --- PHOTO UPLOAD ENDPOINTS ---
+      if (path === '/upload' && method === 'POST') {
+        try {
+          const formData = await request.formData();
+          const file = formData.get('file');
+          const username = formData.get('username');
+
+          if (!file || !username) {
+            return new Response(JSON.stringify({ message: 'Missing file or username', status: 'error' }), { status: 400, headers: corsHeaders });
+          }
+
+          // Check file type
+          if (!file.type.startsWith('image/')) {
+            return new Response(JSON.stringify({ message: 'Only image files are allowed', status: 'error' }), { status: 400, headers: corsHeaders });
+          }
+
+          // Check file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            return new Response(JSON.stringify({ message: 'File size must be less than 5MB', status: 'error' }), { status: 400, headers: corsHeaders });
+          }
+
+          // Convert file to base64 for storage
+          const arrayBuffer = await file.arrayBuffer();
+          const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+          // Store in database
+          await env.DB.prepare(`
+            INSERT INTO photos (username, filename, file_type, file_size, file_data, uploaded_at) 
+            VALUES (?, ?, ?, ?, ?, datetime('now'))
+          `).bind(username, file.name, file.type, file.size, base64).run();
+
+          return new Response(JSON.stringify({ 
+            message: 'Photo uploaded successfully', 
+            status: 'success',
+            filename: file.name 
+          }), { status: 200, headers: corsHeaders });
+
+        } catch (error) {
+          console.error('Upload error:', error);
+          return new Response(JSON.stringify({ message: 'Upload failed', status: 'error' }), { status: 500, headers: corsHeaders });
+        }
+      }
+
+      if (path === '/photos' && method === 'GET') {
+        try {
+          const photos = await env.DB.prepare(`
+            SELECT id, username, filename, file_type, file_size, uploaded_at 
+            FROM photos 
+            ORDER BY uploaded_at DESC
+          `).all();
+
+          return new Response(JSON.stringify({ 
+            message: 'Photos retrieved successfully', 
+            status: 'success',
+            data: photos.results 
+          }), { status: 200, headers: corsHeaders });
+
+        } catch (error) {
+          console.error('Photos retrieval error:', error);
+          return new Response(JSON.stringify({ message: 'Failed to retrieve photos', status: 'error' }), { status: 500, headers: corsHeaders });
+        }
+      }
+
+      if (path.startsWith('/photo/') && method === 'GET') {
+        try {
+          const photoId = path.split('/')[2];
+          const photo = await env.DB.prepare('SELECT * FROM photos WHERE id = ?').bind(photoId).first();
+
+          if (!photo) {
+            return new Response(JSON.stringify({ message: 'Photo not found', status: 'error' }), { status: 404, headers: corsHeaders });
+          }
+
+          // Convert base64 back to binary
+          const binaryString = atob(photo.file_data);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+
+          return new Response(bytes, {
+            status: 200,
+            headers: {
+              'Content-Type': photo.file_type,
+              'Content-Disposition': `inline; filename="${photo.filename}"`,
+              ...corsHeaders,
+            },
+          });
+
+        } catch (error) {
+          console.error('Photo retrieval error:', error);
+          return new Response(JSON.stringify({ message: 'Failed to retrieve photo', status: 'error' }), { status: 500, headers: corsHeaders });
+        }
+      }
+
       // --- EXISTING ENDPOINTS ---
       switch (path) {
         case '/test':

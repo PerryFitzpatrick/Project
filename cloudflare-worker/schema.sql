@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    username TEXT UNIQUE,
+    username TEXT UNIQUE NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -80,6 +80,17 @@ CREATE TABLE IF NOT EXISTS platform_playlists (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
     UNIQUE(playlist_id, platform)
+);
+
+-- Create photos table
+CREATE TABLE IF NOT EXISTS photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    file_type TEXT NOT NULL,
+    file_size INTEGER NOT NULL,
+    file_data TEXT NOT NULL,
+    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create indexes for better query performance
