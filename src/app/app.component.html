@@ -179,8 +179,11 @@
 <main class="main">
   <div class="content">
     <div class="left-side">
-      <h1 class="perry">perry.click</h1>
+      <h1 class="perry" (click)="hey()">perry.click</h1>
+      <!-- Add buttons to call the Go backend -->
+      <button (click)="callBackend()">Test Backend</button>
+      <button (click)="callHello()">Hello Backend</button>
+      <div>{{ response }}</div>
     </div>
   </div>
 </main>
-<router-outlet />

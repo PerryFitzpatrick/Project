@@ -1,0 +1,11 @@
+name = "perry-api"
+main = "src/worker.js"
+compatibility_date = "2024-02-14"
+
+[env.development]
+name = "perry-api-dev"
+workers_dev = true
+
+[env.production]
+name = "perry-api"
+route = "api.perry.click/*"
