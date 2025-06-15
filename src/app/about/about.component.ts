@@ -46,6 +46,7 @@ export class AboutComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/']);
+    // Use replaceUrl to avoid adding to browser history
+    this.router.navigate(['/'], { replaceUrl: true });
   }
 }
