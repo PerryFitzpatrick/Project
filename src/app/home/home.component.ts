@@ -49,6 +49,7 @@ export class HomeComponent {
   }
 
   openLoginModal() {
+    console.log('openLoginModal called');
     this.showLoginModal = true;
   }
 
@@ -57,14 +58,20 @@ export class HomeComponent {
   }
 
   openUserProfileModal() {
+    console.log('openUserProfileModal called');
+    console.log('Current showUserProfileModal:', this.showUserProfileModal);
+    console.log('Current user:', this.currentUser);
     this.showUserProfileModal = true;
+    console.log('New showUserProfileModal:', this.showUserProfileModal);
   }
 
   closeUserProfileModal() {
+    console.log('closeUserProfileModal called');
     this.showUserProfileModal = false;
   }
 
   onLoginSuccess(userData: any) {
+    console.log('onLoginSuccess called with:', userData);
     this.isLoggedIn = true;
     this.currentUser = userData.user;
     this.showLoginModal = false;
@@ -72,6 +79,7 @@ export class HomeComponent {
   }
 
   onUserUpdated(updatedUser: any) {
+    console.log('onUserUpdated called with:', updatedUser);
     this.currentUser = updatedUser;
   }
 
@@ -93,6 +101,7 @@ export class HomeComponent {
             username: userData.username,
             email: userData.email
           };
+          console.log('User logged in:', this.currentUser);
         }
       } catch (error) {
         console.error('Error decoding JWT:', error);
