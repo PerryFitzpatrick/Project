@@ -3,17 +3,19 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoginModalComponent } from '../auth/login-modal/login-modal.component';
+import { UserProfileModalComponent } from '../auth/user-profile-modal/user-profile-modal.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, LoginModalComponent],
+  imports: [CommonModule, HttpClientModule, LoginModalComponent, UserProfileModalComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
   response: string = '';
   showLoginModal = false;
+  showUserProfileModal = false;
   isLoggedIn = false;
   currentUser: any = null;
 
@@ -54,11 +56,23 @@ export class HomeComponent {
     this.showLoginModal = false;
   }
 
+  openUserProfileModal() {
+    this.showUserProfileModal = true;
+  }
+
+  closeUserProfileModal() {
+    this.showUserProfileModal = false;
+  }
+
   onLoginSuccess(userData: any) {
     this.isLoggedIn = true;
     this.currentUser = userData.user;
     this.showLoginModal = false;
     console.log('Login successful:', userData);
+  }
+
+  onUserUpdated(updatedUser: any) {
+    this.currentUser = updatedUser;
   }
 
   logout() {

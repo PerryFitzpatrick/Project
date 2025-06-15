@@ -201,6 +201,28 @@
     font-size: 0.9rem;
     color: var(--gray-700);
     font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .user-username:hover {
+    color: var(--bright-blue);
+  }
+
+  .profile-button {
+    padding: 6px 12px;
+    border: 1px solid #3b82f6;
+    background: #3b82f6;
+    color: white;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .profile-button:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
   }
 
   .logout-button {
@@ -246,7 +268,8 @@
   </div>
   
   <div *ngIf="isLoggedIn" class="user-info">
-    <span class="user-username">{{ currentUser?.username || 'User' }}</span>
+    <span class="user-username" (click)="openUserProfileModal()">{{ currentUser?.username || 'User' }}</span>
+    <button class="profile-button" (click)="openUserProfileModal()">Profile</button>
     <button class="logout-button" (click)="logout()">Logout</button>
   </div>
 
@@ -266,4 +289,12 @@
   [isOpen]="showLoginModal"
   (closeModal)="closeLoginModal()"
   (loginSuccess)="onLoginSuccess($event)"
-></app-login-modal> 
+></app-login-modal>
+
+<!-- User Profile Modal -->
+<app-user-profile-modal 
+  [isOpen]="showUserProfileModal"
+  [user]="currentUser"
+  (closeModal)="closeUserProfileModal()"
+  (userUpdated)="onUserUpdated($event)">
+</app-user-profile-modal> 

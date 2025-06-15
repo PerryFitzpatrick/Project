@@ -1,0 +1,130 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onBackdropClick($event)">
+  <div class="modal-content">
+    <!-- Close button -->
+    <button class="close-button" (click)="onClose()" aria-label="Close modal">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Modal header -->
+    <div class="modal-header">
+      <h2>User Profile</h2>
+      <p>Manage your account settings</p>
+    </div>
+
+    <!-- Error/Success messages -->
+    <div class="message error" *ngIf="error">
+      {{ error }}
+    </div>
+    <div class="message success" *ngIf="success">
+      {{ success }}
+    </div>
+
+    <!-- User info section -->
+    <div class="profile-section">
+      <h3>Account Information</h3>
+      
+      <!-- Username -->
+      <div class="info-item">
+        <label>Username</label>
+        <div class="info-content">
+          <span *ngIf="!editingUsername">{{ user?.username || 'Not set' }}</span>
+          <div *ngIf="editingUsername" class="edit-form">
+            <input 
+              type="text" 
+              [(ngModel)]="editData.username" 
+              placeholder="Enter new username"
+              [disabled]="loading"
+            >
+            <div class="edit-actions">
+              <button class="save-button" (click)="saveUsername()" [disabled]="loading">
+                <span *ngIf="!loading">Save</span>
+                <span *ngIf="loading" class="loading-spinner">Saving...</span>
+              </button>
+              <button class="cancel-button" (click)="cancelEdit()" [disabled]="loading">Cancel</button>
+            </div>
+          </div>
+          <button 
+            *ngIf="!editingUsername" 
+            class="edit-button" 
+            (click)="startEditUsername()"
+            [disabled]="loading"
+          >
+            Edit
+          </button>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="info-item">
+        <label>Email</label>
+        <div class="info-content">
+          <span>{{ user?.email || 'Not set' }}</span>
+          <span class="readonly-badge">Read-only</span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="info-item">
+        <label>Password</label>
+        <div class="info-content">
+          <span>••••••••</span>
+          <button 
+            *ngIf="!editingPassword" 
+            class="edit-button" 
+            (click)="startEditPassword()"
+            [disabled]="loading"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Password reset form -->
+      <div *ngIf="editingPassword" class="password-reset-form">
+        <div class="form-group">
+          <label for="current-password">Current Password</label>
+          <input 
+            type="password" 
+            id="current-password"
+            [(ngModel)]="editData.currentPassword" 
+            placeholder="Enter current password"
+            [disabled]="loading"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="new-password">New Password</label>
+          <input 
+            type="password" 
+            id="new-password"
+            [(ngModel)]="editData.newPassword" 
+            placeholder="Enter new password (min 6 characters)"
+            [disabled]="loading"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="confirm-password">Confirm New Password</label>
+          <input 
+            type="password" 
+            id="confirm-password"
+            [(ngModel)]="editData.confirmPassword" 
+            placeholder="Confirm new password"
+            [disabled]="loading"
+          >
+        </div>
+
+        <div class="edit-actions">
+          <button class="save-button" (click)="resetPassword()" [disabled]="loading">
+            <span *ngIf="!loading">Update Password</span>
+            <span *ngIf="loading" class="loading-spinner">Updating...</span>
+          </button>
+          <button class="cancel-button" (click)="cancelEdit()" [disabled]="loading">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
