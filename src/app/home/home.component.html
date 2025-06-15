@@ -209,22 +209,6 @@
     color: var(--bright-blue);
   }
 
-  .profile-button {
-    padding: 6px 12px;
-    border: 1px solid #3b82f6;
-    background: #3b82f6;
-    color: white;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .profile-button:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
-  }
-
   .logout-button {
     padding: 6px 12px;
     border: 1px solid #e5e7eb;
@@ -269,7 +253,6 @@
   
   <div *ngIf="isLoggedIn" class="user-info">
     <span class="user-username" (click)="openUserProfileModal()">{{ currentUser?.username || 'User' }}</span>
-    <button class="profile-button" (click)="openUserProfileModal()">Profile</button>
     <button class="logout-button" (click)="logout()">Logout</button>
   </div>
 
