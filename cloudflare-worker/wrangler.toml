@@ -7,6 +7,10 @@ binding = "DB"
 database_name = "perry-auth"
 database_id = "8f0fbe1b-27e4-4bdf-ae42-4068af6c8c73"
 
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "perry-photos"
+
 [env.development]
 name = "perry-api-dev"
 workers_dev = true

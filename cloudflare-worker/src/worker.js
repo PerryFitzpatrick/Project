@@ -100,20 +100,46 @@ export default {
             return new Response(JSON.stringify({ message: 'Only image files are allowed', status: 'error' }), { status: 400, headers: corsHeaders });
           }
 
-          // Check file size (max 5MB)
-          if (file.size > 5 * 1024 * 1024) {
-            return new Response(JSON.stringify({ message: 'File size must be less than 5MB', status: 'error' }), { status: 400, headers: corsHeaders });
+          // Check file size (max 10MB for R2)
+          if (file.size > 10 * 1024 * 1024) {
+            return new Response(JSON.stringify({ message: 'File size must be less than 10MB', status: 'error' }), { status: 400, headers: corsHeaders });
           }
 
-          // Convert file to base64 for storage
-          const arrayBuffer = await file.arrayBuffer();
-          const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+          // Generate unique filename
+          const timestamp = Date.now();
+          const fileExtension = file.name.split('.').pop();
+          const uniqueFilename = `${username}_${timestamp}.${fileExtension}`;
 
-          // Store in database
-          await env.DB.prepare(`
+          console.log('File details:', {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            username: username,
+            uniqueFilename: uniqueFilename
+          });
+
+          // Upload file to R2
+          const arrayBuffer = await file.arrayBuffer();
+          await env.PHOTOS.put(uniqueFilename, arrayBuffer, {
+            httpMetadata: {
+              contentType: file.type,
+            },
+            customMetadata: {
+              originalName: file.name,
+              username: username,
+              uploadedAt: new Date().toISOString()
+            }
+          });
+
+          console.log('File uploaded to R2:', uniqueFilename);
+
+          // Store metadata in database
+          const result = await env.DB.prepare(`
             INSERT INTO photos (username, filename, file_type, file_size, file_data, uploaded_at) 
             VALUES (?, ?, ?, ?, ?, datetime('now'))
-          `).bind(username, file.name, file.type, file.size, base64).run();
+          `).bind(username, file.name, file.type, file.size, uniqueFilename).run();
+
+          console.log('Database insert result:', result);
 
           return new Response(JSON.stringify({ 
             message: 'Photo uploaded successfully', 
@@ -123,7 +149,12 @@ export default {
 
         } catch (error) {
           console.error('Upload error:', error);
-          return new Response(JSON.stringify({ message: 'Upload failed', status: 'error' }), { status: 500, headers: corsHeaders });
+          console.error('Error stack:', error.stack);
+          return new Response(JSON.stringify({ 
+            message: 'Upload failed: ' + error.message, 
+            status: 'error',
+            details: error.stack
+          }), { status: 500, headers: corsHeaders });
         }
       }
 
@@ -156,14 +187,14 @@ export default {
             return new Response(JSON.stringify({ message: 'Photo not found', status: 'error' }), { status: 404, headers: corsHeaders });
           }
 
-          // Convert base64 back to binary
-          const binaryString = atob(photo.file_data);
-          const bytes = new Uint8Array(binaryString.length);
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
+          // Get file from R2 using the stored filename
+          const r2Object = await env.PHOTOS.get(photo.file_data);
+          
+          if (!r2Object) {
+            return new Response(JSON.stringify({ message: 'Photo file not found in storage', status: 'error' }), { status: 404, headers: corsHeaders });
           }
 
-          return new Response(bytes, {
+          return new Response(r2Object.body, {
             status: 200,
             headers: {
               'Content-Type': photo.file_type,
