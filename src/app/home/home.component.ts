@@ -117,7 +117,7 @@ export class HomeComponent {
     formData.append('file', file);
     formData.append('username', this.currentUser?.username || '');
 
-    this.http.post('https://perry-click-backend.pfitzpatrick.workers.dev/upload', formData)
+    this.http.post('https://perry-api.sawatzky-perry.workers.dev/upload', formData)
       .subscribe({
         next: (response: any) => {
           this.uploadStatus = 'Upload successful!';

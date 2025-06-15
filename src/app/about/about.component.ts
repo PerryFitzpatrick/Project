@@ -32,7 +32,7 @@ export class AboutComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.http.get('https://perry-click-backend.pfitzpatrick.workers.dev/photos')
+    this.http.get('https://perry-api.sawatzky-perry.workers.dev/photos')
       .subscribe({
         next: (response: any) => {
           this.photos = response.data || [];
@@ -47,7 +47,7 @@ export class AboutComponent implements OnInit {
   }
 
   getPhotoUrl(photoId: number): string {
-    return `https://perry-click-backend.pfitzpatrick.workers.dev/photo/${photoId}`;
+    return `https://perry-api.sawatzky-perry.workers.dev/photo/${photoId}`;
   }
 
   formatFileSize(bytes: number): string {
