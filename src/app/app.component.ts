@@ -12,6 +12,10 @@ export class AppComponent {
   title = 'Project';
   response: string = '';
 
+  // Use environment-based URLs
+  private readonly apiBaseUrl = 'https://perry-api.sawatzky-perry.workers.dev'; // Production URL
+  // private readonly apiBaseUrl = 'http://localhost:8787'; // Development URL
+
   constructor(private http: HttpClient) {}
 
   hey() {
@@ -19,9 +23,8 @@ export class AppComponent {
   }
 
   callBackend() {
-    console.log('hi there')
-    // Call the Cloudflare Worker test endpoint
-    this.http.get('http://localhost:8787/test', { responseType: 'text' })
+    console.log('Calling backend...');
+    this.http.get(`${this.apiBaseUrl}/test`, { responseType: 'text' })
       .subscribe(
         (data) => this.response = data,
         (error) => {
@@ -32,8 +35,8 @@ export class AppComponent {
   }
 
   callHello() {
-    console.log('Hi')
-    this.http.get('http://localhost:8787/hello', { responseType: 'text' })
+    console.log('Calling hello...');
+    this.http.get(`${this.apiBaseUrl}/hello`, { responseType: 'text' })
       .subscribe(
         (data) => this.response = data,
         (error) => {

@@ -1,0 +1,39 @@
+name: Deploy Angular Frontend
+
+on:
+  push:
+    branches: [main]
+    paths: ['src/**', 'angular.json', 'package.json']
+  pull_request:
+    branches: [main]
+    paths: ['src/**', 'angular.json', 'package.json']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build Angular app
+        run: npm run build
+        
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-build
+          path: dist/
+          
+      # Note: Cloudflare Pages will auto-deploy from the repository
+      # This workflow is mainly for CI/CD validation 
