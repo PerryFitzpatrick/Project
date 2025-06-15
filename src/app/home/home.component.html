@@ -3,7 +3,7 @@
 <!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
 <!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
+<!-- * * * * * * * * * * * Delete the template below * * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
@@ -197,7 +197,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
-  .user-email {
+  .user-username {
     font-size: 0.9rem;
     color: var(--gray-700);
     font-weight: 500;
@@ -246,7 +246,7 @@
   </div>
   
   <div *ngIf="isLoggedIn" class="user-info">
-    <span class="user-email">{{ currentUser?.email || 'User' }}</span>
+    <span class="user-username">{{ currentUser?.username || 'User' }}</span>
     <button class="logout-button" (click)="logout()">Logout</button>
   </div>
 

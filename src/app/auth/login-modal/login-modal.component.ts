@@ -74,11 +74,15 @@ export class LoginModalComponent {
         localStorage.setItem('authToken', response.token);
         this.success = 'Login successful!';
         
-        // Emit success event
+        // Decode JWT to get user info
+        const userData = this.decodeJwt(response.token);
+        
+        // Emit success event with user data
         this.loginSuccess.emit({
           token: response.token,
           user: {
-            email: this.loginData.email
+            username: userData?.username || this.loginData.email,
+            email: userData?.email || this.loginData.email
           }
         });
 
@@ -139,6 +143,21 @@ export class LoginModalComponent {
       this.error = error.error?.message || 'Registration failed. Please try again.';
     } finally {
       this.loading = false;
+    }
+  }
+
+  private decodeJwt(token: string): any {
+    try {
+      // JWT tokens have 3 parts separated by dots
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error('Error decoding JWT:', error);
+      return null;
     }
   }
 
