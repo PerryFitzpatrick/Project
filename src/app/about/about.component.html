@@ -1,0 +1,36 @@
+<div class="about-container">
+  <div class="content">
+    <h1>About Page</h1>
+    
+    <div class="api-section">
+      <h2>Backend API Data</h2>
+      
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading">
+        <p>Loading data from backend...</p>
+      </div>
+      
+      <!-- Error State -->
+      <div *ngIf="error" class="error">
+        <p>{{ error }}</p>
+        <button (click)="fetchHelloData()">Retry</button>
+      </div>
+      
+      <!-- Success State -->
+      <div *ngIf="apiData && !loading && !error" class="api-data">
+        <div class="data-card">
+          <h3>{{ apiData.message }}</h3>
+          <p><strong>Status:</strong> {{ apiData.status }}</p>
+          <div *ngIf="apiData.data">
+            <p><strong>Greeting:</strong> {{ apiData.data.greeting }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="navigation">
+      <button (click)="goBack()" class="back-button">← Back to Home</button>
+      <button (click)="fetchHelloData()" class="refresh-button">🔄 Refresh Data</button>
+    </div>
+  </div>
+</div>
