@@ -12,5 +12,9 @@
     "@cloudflare/workers-types": "^4.20240208.0",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "jose": "^6.0.11"
   }
-} 
+}

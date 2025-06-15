@@ -1,0 +1,300 @@
+// Modal overlay
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Modal content
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+}
+
+// Close button
+.close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  color: #666;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: #f5f5f5;
+    color: #333;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Modal header
+.modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    color: #666;
+    margin: 0;
+    font-size: 0.95rem;
+  }
+}
+
+// Tab navigation
+.tab-navigation {
+  display: flex;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #333;
+  }
+
+  &.active {
+    background: white;
+    color: #007bff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Messages
+.message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+
+  &.error {
+    background: #fdf2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+  }
+
+  &.success {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+  }
+}
+
+// Auth form
+.auth-form {
+  .form-group {
+    margin-bottom: 20px;
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+
+      &:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      &:disabled {
+        background: #f9fafb;
+        color: #6b7280;
+        cursor: not-allowed;
+      }
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+    }
+  }
+}
+
+// Submit button
+.submit-button {
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Loading spinner
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  &::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+// Modal footer
+.modal-footer {
+  margin-top: 24px;
+  text-align: center;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+}
+
+// Link button
+.link-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: underline;
+  padding: 0;
+  margin: 0;
+
+  &:hover {
+    color: #0056b3;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 24px;
+    margin: 16px;
+    width: calc(100% - 32px);
+  }
+
+  .modal-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .tab-button {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .form-group input {
+    padding: 10px 14px;
+  }
+
+  .submit-button {
+    padding: 12px 16px;
+  }
+}

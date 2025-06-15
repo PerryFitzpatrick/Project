@@ -2,6 +2,11 @@ name = "perry-api"
 main = "src/worker.js"
 compatibility_date = "2024-02-14"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "perry-auth"
+database_id = "8f0fbe1b-27e4-4bdf-ae42-4068af6c8c73"
+
 [env.development]
 name = "perry-api-dev"
 workers_dev = true

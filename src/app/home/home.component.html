@@ -161,6 +161,64 @@
     fill: var(--gray-900);
   }
 
+  /* Auth button styles */
+  .auth-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border: 2px solid var(--bright-blue);
+    background: transparent;
+    color: var(--bright-blue);
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  .auth-button:hover {
+    background: var(--bright-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  }
+
+  .user-info {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .user-email {
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    font-weight: 500;
+  }
+
+  .logout-button {
+    padding: 6px 12px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #6b7280;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .logout-button:hover {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
   @media screen and (max-width: 650px) {
     .content {
       flex-direction: column;
@@ -173,10 +231,25 @@
       background: var(--red-to-pink-to-purple-horizontal-gradient);
       margin-block: 1.5rem;
     }
+
+    .auth-button, .user-info {
+      top: 10px;
+      right: 10px;
+    }
   }
 </style>
 
 <main class="main">
+  <!-- Auth button or user info -->
+  <div *ngIf="!isLoggedIn" class="auth-button" (click)="openLoginModal()">
+    Login
+  </div>
+  
+  <div *ngIf="isLoggedIn" class="user-info">
+    <span class="user-email">{{ currentUser?.email || 'User' }}</span>
+    <button class="logout-button" (click)="logout()">Logout</button>
+  </div>
+
   <div class="content">
     <div class="left-side">
       <h1 class="perry" (click)="hey()">perry.click</h1>
@@ -186,4 +259,11 @@
       <div>{{ response }}</div>
     </div>
   </div>
-</main> 
+</main>
+
+<!-- Login Modal -->
+<app-login-modal 
+  [isOpen]="showLoginModal"
+  (closeModal)="closeLoginModal()"
+  (loginSuccess)="onLoginSuccess($event)"
+></app-login-modal> 

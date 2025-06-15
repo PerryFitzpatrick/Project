@@ -1,12 +1,15 @@
--- Users table to store user information
+-- Users table for authentication
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    username TEXT UNIQUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    last_login_at DATETIME,
-    preferences JSON -- Store user preferences like favorite genres, platforms, etc.
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create index for faster email lookups
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
 -- Platform connections (Spotify, YouTube Music, etc.)
 CREATE TABLE IF NOT EXISTS platform_connections (
