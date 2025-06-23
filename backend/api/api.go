@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/joho/godotenv"
 )
 
 const appName = "api-template"
@@ -24,6 +25,12 @@ type App struct {
 func New(configPath string) *App {
 	if configPath == "" {
 		configPath = "config.yaml"
+	}
+
+	// Load environment variables from .env file
+	if err := godotenv.Load(); err != nil {
+		// Don't fail if .env file doesn't exist, just log it
+		fmt.Println("No .env file found, using system environment variables")
 	}
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
