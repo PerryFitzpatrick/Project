@@ -418,6 +418,91 @@
     background: #dbeafe;
     color: #1e40af;
   }
+
+  /* Email Photos styles */
+  .email-photos-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .email-photos-input {
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .email-photos-input:focus {
+    outline: none;
+    border-color: var(--bright-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .email-photos-textarea {
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+  }
+
+  .email-photos-textarea:focus {
+    outline: none;
+    border-color: var(--bright-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .email-photos-button {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+  }
+
+  .email-photos-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .email-photos-button:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .photo-email-status {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .photo-email-status.success {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .photo-email-status.error {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .photo-email-status.loading {
+    background: #dbeafe;
+    color: #1e40af;
+  }
 </style>
 
 <main class="main">
@@ -496,6 +581,35 @@
       </button>
       <div *ngIf="bunnyUploadStatus" class="bunny-upload-status" [class]="bunnyUploadStatusClass">
         {{ bunnyUploadStatus }}
+      </div>
+    </div>
+
+    <!-- Email Photos Section - only show when logged in -->
+    <div *ngIf="isLoggedIn" style="margin-top: 2rem; text-align: center;">
+      <h3>📧 Email Your Photos</h3>
+      <div class="email-photos-form">
+        <input 
+          type="email" 
+          [(ngModel)]="photoRecipientEmail" 
+          placeholder="Recipient email address"
+          class="email-photos-input"
+        >
+        <textarea 
+          [(ngModel)]="photoEmailMessage" 
+          placeholder="Add a message to your photos..."
+          class="email-photos-textarea"
+          rows="3"
+        ></textarea>
+        <button 
+          (click)="emailPhotos()" 
+          class="email-photos-button"
+          [disabled]="!photoRecipientEmail.trim() || !photoEmailMessage.trim() || emailingPhotos"
+        >
+          {{ emailingPhotos ? 'Sending...' : '📧 Email Photos' }}
+        </button>
+        <div *ngIf="photoEmailStatus" class="photo-email-status" [class]="photoEmailStatusClass">
+          {{ photoEmailStatus }}
+        </div>
       </div>
     </div>
   </div>

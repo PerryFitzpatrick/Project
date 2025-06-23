@@ -30,6 +30,13 @@ export class HomeComponent {
   emailSending = false;
   emailStatus = '';
   emailStatusClass = '';
+  
+  // Email Photos properties
+  photoRecipientEmail = '';
+  photoEmailMessage = '';
+  emailingPhotos = false;
+  photoEmailStatus = '';
+  photoEmailStatusClass = '';
 
   constructor(
     private http: HttpClient,
@@ -253,6 +260,69 @@ export class HomeComponent {
           setTimeout(() => {
             this.emailStatus = '';
             this.emailStatusClass = '';
+          }, 5000);
+        }
+      });
+  }
+
+  emailPhotos() {
+    if (!this.photoRecipientEmail.trim() || !this.photoEmailMessage.trim()) {
+      return;
+    }
+
+    this.emailingPhotos = true;
+    this.photoEmailStatus = 'Sending photos...';
+    this.photoEmailStatusClass = 'loading';
+
+    const emailData = {
+      recipientEmail: this.photoRecipientEmail,
+      message: this.photoEmailMessage
+    };
+
+    // Get the auth token
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      this.photoEmailStatus = 'Authentication required';
+      this.photoEmailStatusClass = 'error';
+      this.emailingPhotos = false;
+      return;
+    }
+
+    // Call the Cloudflare Worker email photos endpoint
+    this.http.post('https://perry-api.sawatzky-perry.workers.dev/email-photos', emailData, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .subscribe({
+        next: (response: any) => {
+          this.emailingPhotos = false;
+          if (response.status === 'success') {
+            this.photoEmailStatus = `Photos emailed successfully! (${response.photosCount} photos sent)`;
+            this.photoEmailStatusClass = 'success';
+            this.photoRecipientEmail = ''; // Clear the email
+            this.photoEmailMessage = ''; // Clear the message
+          } else {
+            this.photoEmailStatus = 'Failed to send photos: ' + response.message;
+            this.photoEmailStatusClass = 'error';
+          }
+          
+          // Clear status after 8 seconds (longer to show photo count)
+          setTimeout(() => {
+            this.photoEmailStatus = '';
+            this.photoEmailStatusClass = '';
+          }, 8000);
+        },
+        error: (error) => {
+          this.emailingPhotos = false;
+          this.photoEmailStatus = 'Failed to send photos: ' + (error.error?.message || 'Network error');
+          this.photoEmailStatusClass = 'error';
+          console.error('Email photos error:', error);
+          
+          // Clear status after 5 seconds
+          setTimeout(() => {
+            this.photoEmailStatus = '';
+            this.photoEmailStatusClass = '';
           }, 5000);
         }
       });
