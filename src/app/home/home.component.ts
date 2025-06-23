@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LoginModalComponent } from '../auth/login-modal/login-modal.component';
 import { UserProfileModalComponent } from '../auth/user-profile-modal/user-profile-modal.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, LoginModalComponent, UserProfileModalComponent],
+  imports: [CommonModule, HttpClientModule, FormsModule, LoginModalComponent, UserProfileModalComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
@@ -19,6 +20,12 @@ export class HomeComponent {
   showUserProfileModal = false;
   response = '';
   uploadStatus = '';
+  
+  // Email properties
+  emailMessage = '';
+  emailSending = false;
+  emailStatus = '';
+  emailStatusClass = '';
 
   constructor(
     private http: HttpClient,
@@ -135,6 +142,54 @@ export class HomeComponent {
           // Clear status after 5 seconds
           setTimeout(() => {
             this.uploadStatus = '';
+          }, 5000);
+        }
+      });
+  }
+
+  sendEmail() {
+    if (!this.emailMessage.trim()) {
+      return;
+    }
+
+    this.emailSending = true;
+    this.emailStatus = 'Sending email...';
+    this.emailStatusClass = 'loading';
+
+    const emailData = {
+      message: this.emailMessage
+    };
+
+    // Call the Go backend email endpoint
+    this.http.post('http://localhost:8080/email', emailData)
+      .subscribe({
+        next: (response: any) => {
+          this.emailSending = false;
+          if (response.success) {
+            this.emailStatus = 'Email sent successfully!';
+            this.emailStatusClass = 'success';
+            this.emailMessage = ''; // Clear the message
+          } else {
+            this.emailStatus = 'Failed to send email: ' + response.message;
+            this.emailStatusClass = 'error';
+          }
+          
+          // Clear status after 5 seconds
+          setTimeout(() => {
+            this.emailStatus = '';
+            this.emailStatusClass = '';
+          }, 5000);
+        },
+        error: (error) => {
+          this.emailSending = false;
+          this.emailStatus = 'Failed to send email: ' + (error.error?.message || 'Network error');
+          this.emailStatusClass = 'error';
+          console.error('Email error:', error);
+          
+          // Clear status after 5 seconds
+          setTimeout(() => {
+            this.emailStatus = '';
+            this.emailStatusClass = '';
           }, 5000);
         }
       });

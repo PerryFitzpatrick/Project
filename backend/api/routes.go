@@ -12,6 +12,7 @@ const (
 	routeHello   = "/hello"
 	routeTest    = "/test"
 	routeMetrics = "/metrics"
+	routeEmail   = "/email"
 )
 
 func (a *App) createRoutes(router *chi.Mux) {
@@ -22,6 +23,7 @@ func (a *App) createRoutes(router *chi.Mux) {
 	router.Get(routeHello, handlers.HandleHello())
 	router.Get(routeFoo, handlers.HandleFoo(a.metrics))
 	router.Get(routeTest, handlers.HandleTest())
+	router.Post(routeEmail, handlers.HandleSendEmail(a.logger))
 }
 
 // corsMiddleware adds CORS headers to all responses
