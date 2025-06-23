@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"os"
 )
 
 type EmailRequest struct {
@@ -31,6 +32,20 @@ func HandleSendEmail(logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Get Postmark API token from environment variable
+		postmarkToken := os.Getenv("POSTMARK_API_TOKEN")
+		if postmarkToken == "" {
+			logger.Error("POSTMARK_API_TOKEN environment variable not set")
+			response := EmailResponse{
+				Success: false,
+				Message: "Email service not configured",
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(response)
 			return
 		}
 
@@ -76,7 +91,7 @@ func HandleSendEmail(logger *slog.Logger) http.HandlerFunc {
 		// Set headers
 		httpReq.Header.Set("Content-Type", "application/json")
 		httpReq.Header.Set("Accept", "application/json")
-		httpReq.Header.Set("X-Postmark-Server-Token", "a9648624-7b85-4864-a9c0-2caf12a9eadf")
+		httpReq.Header.Set("X-Postmark-Server-Token", postmarkToken)
 
 		// Send request
 		client := &http.Client{}

@@ -6,6 +6,12 @@ A comprehensive full-stack web application featuring:
 - **Email Service**: Go backend with Postmark integration for sending emails
 - **Deployment**: Automated CI/CD with GitHub Actions and Cloudflare Pages
 
+## 🔐 Security Notice
+
+**⚠️ IMPORTANT**: This project uses sensitive API keys and tokens. Please read [SECURITY.md](./SECURITY.md) for proper secret management procedures.
+
+**Never commit secrets to version control.** All secrets must be managed through environment variables or secret management services.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -64,14 +70,23 @@ Project/
 
 ### Environment Variables
 
-**Go Backend** (backend/.env):
+**Go Backend** (backend/.env - never commit this file):
 ```env
 POSTMARK_API_TOKEN=your_postmark_token
 SENDER_EMAIL=your_verified_sender@domain.com
 ```
 
-**Cloudflare Worker** (cloudflare-worker/wrangler.toml):
+**Cloudflare Worker** (secrets managed via wrangler):
+```bash
+# Set secrets securely (never commit to version control)
+cd cloudflare-worker
+npx wrangler secret put POSTMARK_API_TOKEN
+npx wrangler secret put BUNNY_STORAGE_API_KEY
+```
+
+**Configuration files** (safe to commit):
 ```toml
+# cloudflare-worker/wrangler.toml
 name = "perry-api"
 compatibility_date = "2024-01-01"
 
@@ -84,7 +99,9 @@ database_id = "your_d1_database_id"
 ### GitHub Secrets (for CI/CD)
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
-- `POSTMARK_API_TOKEN`
+- `POSTMARK_API_TOKEN` (for Go backend deployment)
+
+**⚠️ Security**: Never commit actual secret values to version control. Use environment variables and secret management services.
 
 ## 🚀 Deployment
 

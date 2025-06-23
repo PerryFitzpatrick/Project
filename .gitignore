@@ -40,3 +40,30 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment files and secrets
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+secrets.json
+secrets.yaml
+secrets.yml
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Wrangler secrets (local development)
+.wrangler/
+wrangler.toml.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
