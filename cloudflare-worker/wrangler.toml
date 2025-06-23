@@ -7,7 +7,7 @@ compatibility_date = "2024-02-14"
 BUNNY_STORAGE_ZONE = "perryclick"
 BUNNY_STORAGE_API_KEY = "07db7c56-22d3-4767-acf11d558392-ddb4-435f"
 BUNNY_STORAGE_ENDPOINT = "ny.storage.bunnycdn.com"
-POSTMARK_API_TOKEN = "your-postmark-api-token-here"
+POSTMARK_API_TOKEN = "a9648624-7b85-4864-a9c0-2caf12a9eadf"
 
 [[d1_databases]]
 binding = "DB"
