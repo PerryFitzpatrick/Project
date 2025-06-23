@@ -1,1 +1,5 @@
-/*    /index.html   200 
+/*    /index.html   200
+
+# Allow Cloudflare scripts to pass through
+/cdn-cgi/*    /cdn-cgi/*   200
+/_cf/*    /_cf/*   200 
