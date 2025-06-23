@@ -185,6 +185,49 @@ export default {
             cdnUrl: cdnUrl
           });
 
+          // Upload file to Bunny.net Storage
+          const storageZone = env.BUNNY_STORAGE_ZONE;
+          const apiKey = env.BUNNY_STORAGE_API_KEY;
+          const endpoint = env.BUNNY_STORAGE_ENDPOINT;
+          const filePath = `uploads/${uniqueFilename}`;
+          const uploadUrl = `https://${endpoint}/${storageZone}/${filePath}`;
+
+          console.log('Uploading to Bunny.net Storage:', {
+            storageZone: storageZone,
+            endpoint: endpoint,
+            filePath: filePath,
+            uploadUrl: uploadUrl
+          });
+
+          // Get file data as ArrayBuffer
+          const fileData = await file.arrayBuffer();
+
+          // Upload to Bunny.net Storage
+          const uploadResponse = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: {
+              'AccessKey': apiKey,
+              'Content-Type': file.type,
+              'Content-Length': file.size.toString()
+            },
+            body: fileData
+          });
+
+          if (!uploadResponse.ok) {
+            const errorText = await uploadResponse.text();
+            console.error('Bunny.net upload failed:', {
+              status: uploadResponse.status,
+              statusText: uploadResponse.statusText,
+              error: errorText
+            });
+            throw new Error(`Bunny.net upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`);
+          }
+
+          console.log('Bunny.net upload successful:', {
+            status: uploadResponse.status,
+            statusText: uploadResponse.statusText
+          });
+
           // Store metadata in D1 database
           const result = await env.DB.prepare(`
             INSERT INTO bunny_uploads (username, original_filename, unique_filename, file_type, file_size, cdn_url, uploaded_at) 
@@ -193,15 +236,11 @@ export default {
 
           console.log('Bunny.net database insert result:', result);
 
-          // For now, return success with CDN URL
-          // In a real implementation, you would upload the file to Bunny.net storage
-          // This is a placeholder - you'll need to implement the actual Bunny.net API call
           return new Response(JSON.stringify({ 
             message: 'File uploaded successfully to Bunny.net', 
             status: 'success',
             filename: file.name,
-            cdnUrl: cdnUrl,
-            note: 'This is a placeholder. Implement actual Bunny.net API integration.'
+            cdnUrl: cdnUrl
           }), { status: 200, headers: corsHeaders });
 
         } catch (error) {
