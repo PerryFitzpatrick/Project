@@ -326,6 +326,141 @@ export default {
         }
       }
 
+      // --- EMAIL PHOTOS ENDPOINT ---
+      if (path === '/email-photos' && method === 'POST') {
+        try {
+          // Verify JWT token
+          const authHeader = request.headers.get('Authorization');
+          if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return new Response(JSON.stringify({ message: 'Authentication required', status: 'error' }), { status: 401, headers: corsHeaders });
+          }
+
+          const token = authHeader.substring(7);
+          let userData;
+          try {
+            // Decode JWT (simple base64 decode for now)
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            userData = JSON.parse(jsonPayload);
+          } catch (error) {
+            return new Response(JSON.stringify({ message: 'Invalid token', status: 'error' }), { status: 401, headers: corsHeaders });
+          }
+
+          const data = await readJson(request);
+          if (!data || !data.recipientEmail || !data.message) {
+            return new Response(JSON.stringify({ message: 'Missing recipient email or message', status: 'error' }), { status: 400, headers: corsHeaders });
+          }
+
+          // Get user's photos (both D1 and Bunny.net)
+          const d1Photos = await env.DB.prepare(`
+            SELECT id, filename, file_type, file_size, uploaded_at 
+            FROM photos 
+            WHERE username = ? 
+            ORDER BY uploaded_at DESC
+          `).bind(userData.username).all();
+
+          const bunnyPhotos = await env.DB.prepare(`
+            SELECT id, original_filename, file_type, file_size, cdn_url, uploaded_at 
+            FROM bunny_uploads 
+            WHERE username = ? 
+            ORDER BY uploaded_at DESC
+          `).bind(userData.username).all();
+
+          if (d1Photos.results.length === 0 && bunnyPhotos.results.length === 0) {
+            return new Response(JSON.stringify({ message: 'No photos found to email', status: 'error' }), { status: 404, headers: corsHeaders });
+          }
+
+          // Create email content with photo links
+          let emailContent = `
+            <h2>Photos from ${userData.username}</h2>
+            <p>${data.message}</p>
+            <br>
+            <h3>Your Photos:</h3>
+          `;
+
+          // Add D1 photos (smaller files, can be embedded)
+          if (d1Photos.results.length > 0) {
+            emailContent += '<h4>📷 D1 Storage Photos:</h4><ul>';
+            d1Photos.results.forEach(photo => {
+              const photoUrl = `https://perry-api.sawatzky-perry.workers.dev/photo/${photo.id}`;
+              emailContent += `
+                <li>
+                  <strong>${photo.filename}</strong> (${(photo.file_size / 1024).toFixed(1)} KB)
+                  <br><a href="${photoUrl}" target="_blank">View Photo</a>
+                </li>
+              `;
+            });
+            emailContent += '</ul>';
+          }
+
+          // Add Bunny.net photos (CDN links)
+          if (bunnyPhotos.results.length > 0) {
+            emailContent += '<h4>🚀 Bunny.net CDN Files:</h4><ul>';
+            bunnyPhotos.results.forEach(photo => {
+              emailContent += `
+                <li>
+                  <strong>${photo.original_filename}</strong> (${(photo.file_size / 1024 / 1024).toFixed(1)} MB)
+                  <br><a href="${photo.cdn_url}" target="_blank">View Full Quality</a>
+                </li>
+              `;
+            });
+            emailContent += '</ul>';
+          }
+
+          emailContent += `
+            <br>
+            <p><em>Sent from your photo gallery at perry.click</em></p>
+          `;
+
+          // Send email via Postmark
+          const postmarkResponse = await fetch('https://api.postmarkapp.com/email', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'X-Postmark-Server-Token': env.POSTMARK_API_TOKEN
+            },
+            body: JSON.stringify({
+              From: 'perry@fitzpatrick-family.com',
+              To: data.recipientEmail,
+              Subject: `Photos from ${userData.username}`,
+              HtmlBody: emailContent,
+              TextBody: `Photos from ${userData.username}\n\n${data.message}\n\nView your photos at: perry.click`,
+              MessageStream: 'outbound'
+            })
+          });
+
+          if (!postmarkResponse.ok) {
+            const errorData = await postmarkResponse.json();
+            console.error('Postmark error:', errorData);
+            return new Response(JSON.stringify({ 
+              message: 'Failed to send email: ' + (errorData.Message || 'Unknown error'), 
+              status: 'error' 
+            }), { status: 500, headers: corsHeaders });
+          }
+
+          const postmarkResult = await postmarkResponse.json();
+          console.log('Email sent successfully:', postmarkResult);
+
+          return new Response(JSON.stringify({ 
+            message: 'Photos emailed successfully', 
+            status: 'success',
+            emailId: postmarkResult.MessageID,
+            photosCount: d1Photos.results.length + bunnyPhotos.results.length
+          }), { status: 200, headers: corsHeaders });
+
+        } catch (error) {
+          console.error('Email photos error:', error);
+          return new Response(JSON.stringify({ 
+            message: 'Failed to email photos: ' + error.message, 
+            status: 'error' 
+          }), { status: 500, headers: corsHeaders });
+        }
+      }
+
       // --- EXISTING ENDPOINTS ---
       switch (path) {
         case '/test':
