@@ -1,11 +1,11 @@
 <div class="about-container">
   <div class="header">
-    <h1>Photo Gallery</h1>
-    <p>All uploaded photos from users</p>
+    <h1>Media Gallery</h1>
+    <p>All uploaded photos and videos from users</p>
   </div>
 
   <div *ngIf="loading" class="loading">
-    <p>Loading photos...</p>
+    <p>Loading media...</p>
   </div>
 
   <div *ngIf="error" class="error">
@@ -13,21 +13,58 @@
     <button (click)="loadPhotos()">Try Again</button>
   </div>
 
-  <div *ngIf="photos.length === 0 && !loading && !error" class="no-photos">
-    <p>No photos uploaded yet.</p>
+  <!-- D1 Photos Section -->
+  <div class="section">
+    <h2>📷 D1 Storage Photos</h2>
+    <div *ngIf="photos.length === 0" class="no-media">
+      <p>No photos uploaded to D1 yet.</p>
+    </div>
+
+    <div *ngIf="photos.length > 0" class="media-gallery">
+      <div *ngFor="let photo of photos" class="media-card">
+        <div class="media-image">
+          <img [src]="getPhotoUrl(photo.id)" [alt]="photo.filename" loading="lazy">
+        </div>
+        <div class="media-details">
+          <h3>{{ photo.filename }}</h3>
+          <p><strong>Uploaded by:</strong> {{ photo.username }}</p>
+          <p><strong>Size:</strong> {{ formatFileSize(photo.file_size) }}</p>
+          <p><strong>Type:</strong> {{ photo.file_type }}</p>
+          <p><strong>Uploaded:</strong> {{ formatDate(photo.uploaded_at) }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="photos.length > 0 && !loading && !error" class="photo-gallery">
-    <div *ngFor="let photo of photos" class="photo-card">
-      <div class="photo-image">
-        <img [src]="getPhotoUrl(photo.id)" [alt]="photo.filename" loading="lazy">
-      </div>
-      <div class="photo-details">
-        <h3>{{ photo.filename }}</h3>
-        <p><strong>Uploaded by:</strong> {{ photo.username }}</p>
-        <p><strong>Size:</strong> {{ formatFileSize(photo.file_size) }}</p>
-        <p><strong>Type:</strong> {{ photo.file_type }}</p>
-        <p><strong>Uploaded:</strong> {{ formatDate(photo.uploaded_at) }}</p>
+  <!-- Bunny.net Uploads Section -->
+  <div class="section">
+    <h2>🚀 Bunny.net CDN Files</h2>
+    <div *ngIf="bunnyUploads.length === 0" class="no-media">
+      <p>No files uploaded to Bunny.net yet.</p>
+    </div>
+
+    <div *ngIf="bunnyUploads.length > 0" class="media-gallery">
+      <div *ngFor="let upload of bunnyUploads" class="media-card">
+        <div class="media-image">
+          <div *ngIf="upload.file_type.startsWith('image/')" class="image-container">
+            <img [src]="upload.cdn_url" [alt]="upload.original_filename" loading="lazy">
+          </div>
+          <div *ngIf="upload.file_type.startsWith('video/')" class="video-container">
+            <video controls [src]="upload.cdn_url"></video>
+          </div>
+          <div *ngIf="!upload.file_type.startsWith('image/') && !upload.file_type.startsWith('video/')" class="file-container">
+            <div class="file-icon">📄</div>
+            <p>{{ upload.original_filename }}</p>
+          </div>
+        </div>
+        <div class="media-details">
+          <h3>{{ upload.original_filename }}</h3>
+          <p><strong>Uploaded by:</strong> {{ upload.username }}</p>
+          <p><strong>Size:</strong> {{ formatFileSize(upload.file_size) }}</p>
+          <p><strong>Type:</strong> {{ upload.file_type }}</p>
+          <p><strong>Uploaded:</strong> {{ formatDate(upload.uploaded_at) }}</p>
+          <p><strong>CDN URL:</strong> <a [href]="upload.cdn_url" target="_blank" class="cdn-link">{{ upload.cdn_url }}</a></p>
+        </div>
       </div>
     </div>
   </div>

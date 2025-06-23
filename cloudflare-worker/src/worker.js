@@ -142,6 +142,79 @@ export default {
         }
       }
 
+      // --- BUNNY.NET UPLOAD ENDPOINT ---
+      if (path === '/bunny-upload' && method === 'POST') {
+        try {
+          const formData = await request.formData();
+          const file = formData.get('file');
+          const username = formData.get('username');
+
+          if (!file || !username) {
+            return new Response(JSON.stringify({ message: 'Missing file or username', status: 'error' }), { status: 400, headers: corsHeaders });
+          }
+
+          // Check file type - allow more formats for Bunny.net
+          const allowedTypes = [
+            'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff', 'image/webp',
+            'image/heic', 'image/heif', 'image/cr2', 'image/nef', 'image/arw', 'image/dng',
+            'video/mp4', 'video/mov', 'video/avi', 'video/mkv', 'video/wmv', 'video/flv', 'video/webm',
+            'video/m4v', 'video/3gp', 'video/mts', 'video/m2ts', 'video/ts'
+          ];
+
+          if (!allowedTypes.includes(file.type.toLowerCase())) {
+            return new Response(JSON.stringify({ message: 'Unsupported file type', status: 'error' }), { status: 400, headers: corsHeaders });
+          }
+
+          // Check file size (max 100MB for Bunny.net)
+          if (file.size > 100 * 1024 * 1024) {
+            return new Response(JSON.stringify({ message: 'File size must be less than 100MB', status: 'error' }), { status: 400, headers: corsHeaders });
+          }
+
+          // Generate unique filename
+          const timestamp = Date.now();
+          const fileExtension = file.name.split('.').pop();
+          const uniqueFilename = `${username}_${timestamp}.${fileExtension}`;
+          const cdnUrl = `https://perry.b-cdn.net/uploads/${uniqueFilename}`;
+
+          console.log('Bunny.net upload details:', {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            username: username,
+            uniqueFilename: uniqueFilename,
+            cdnUrl: cdnUrl
+          });
+
+          // Store metadata in D1 database
+          const result = await env.DB.prepare(`
+            INSERT INTO bunny_uploads (username, original_filename, unique_filename, file_type, file_size, cdn_url, uploaded_at) 
+            VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+          `).bind(username, file.name, uniqueFilename, file.type, file.size, cdnUrl).run();
+
+          console.log('Bunny.net database insert result:', result);
+
+          // For now, return success with CDN URL
+          // In a real implementation, you would upload the file to Bunny.net storage
+          // This is a placeholder - you'll need to implement the actual Bunny.net API call
+          return new Response(JSON.stringify({ 
+            message: 'File uploaded successfully to Bunny.net', 
+            status: 'success',
+            filename: file.name,
+            cdnUrl: cdnUrl,
+            note: 'This is a placeholder. Implement actual Bunny.net API integration.'
+          }), { status: 200, headers: corsHeaders });
+
+        } catch (error) {
+          console.error('Bunny.net upload error:', error);
+          console.error('Error stack:', error.stack);
+          return new Response(JSON.stringify({ 
+            message: 'Bunny.net upload failed: ' + error.message, 
+            status: 'error',
+            details: error.stack
+          }), { status: 500, headers: corsHeaders });
+        }
+      }
+
       if (path === '/photos' && method === 'GET') {
         try {
           const photos = await env.DB.prepare(`
@@ -190,6 +263,27 @@ export default {
         } catch (error) {
           console.error('Photo retrieval error:', error);
           return new Response(JSON.stringify({ message: 'Failed to retrieve photo', status: 'error' }), { status: 500, headers: corsHeaders });
+        }
+      }
+
+      // --- BUNNY.NET UPLOADS ENDPOINTS ---
+      if (path === '/bunny-uploads' && method === 'GET') {
+        try {
+          const uploads = await env.DB.prepare(`
+            SELECT id, username, original_filename, unique_filename, file_type, file_size, cdn_url, uploaded_at 
+            FROM bunny_uploads 
+            ORDER BY uploaded_at DESC
+          `).all();
+
+          return new Response(JSON.stringify({ 
+            message: 'Bunny.net uploads retrieved successfully', 
+            status: 'success',
+            data: uploads.results 
+          }), { status: 200, headers: corsHeaders });
+
+        } catch (error) {
+          console.error('Bunny.net uploads retrieval error:', error);
+          return new Response(JSON.stringify({ message: 'Failed to retrieve Bunny.net uploads', status: 'error' }), { status: 500, headers: corsHeaders });
         }
       }
 

@@ -375,6 +375,49 @@
       right: 10px;
     }
   }
+
+  /* Bunny.net upload styles */
+  .bunny-upload-button {
+    margin-top: 1rem;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+  }
+
+  .bunny-upload-button:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+
+  .bunny-upload-status {
+    margin-top: 1rem;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .bunny-upload-status.success {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .bunny-upload-status.error {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .bunny-upload-status.loading {
+    background: #dbeafe;
+    color: #1e40af;
+  }
 </style>
 
 <main class="main">
@@ -432,10 +475,28 @@
       #fileInput
     >
     <button class="upload-button" (click)="fileInput.click()">
-      📷 Upload Photo
+      📷 Upload Photo (D1)
     </button>
     <div *ngIf="uploadStatus" class="upload-status">
       {{ uploadStatus }}
+    </div>
+    
+    <!-- Bunny.net upload section -->
+    <div style="margin-top: 2rem;">
+      <input 
+        type="file" 
+        id="bunnyFileInput" 
+        accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp,.heic,.heif,.cr2,.nef,.arw,.dng,.mp4,.mov,.avi,.mkv,.wmv,.flv,.webm,.m4v,.3gp,.mts,.m2ts,.ts" 
+        (change)="handleBunnyFileUpload($event)" 
+        style="display: none;"
+        #bunnyFileInput
+      >
+      <button class="bunny-upload-button" (click)="bunnyFileInput.click()">
+        🚀 Upload Large File (Bunny.net)
+      </button>
+      <div *ngIf="bunnyUploadStatus" class="bunny-upload-status" [class]="bunnyUploadStatusClass">
+        {{ bunnyUploadStatus }}
+      </div>
     </div>
   </div>
 </main>

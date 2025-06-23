@@ -98,4 +98,16 @@ CREATE INDEX IF NOT EXISTS idx_songs_title_artist ON songs(title, artist);
 CREATE INDEX IF NOT EXISTS idx_playlists_user ON playlists(user_id);
 CREATE INDEX IF NOT EXISTS idx_platform_connections_user ON platform_connections(user_id);
 CREATE INDEX IF NOT EXISTS idx_playlist_songs_playlist ON playlist_songs(playlist_id);
-CREATE INDEX IF NOT EXISTS idx_platform_playlists_playlist ON platform_playlists(playlist_id); 
+CREATE INDEX IF NOT EXISTS idx_platform_playlists_playlist ON platform_playlists(playlist_id);
+
+-- Bunny.net uploads table (metadata only)
+CREATE TABLE IF NOT EXISTS bunny_uploads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    original_filename TEXT NOT NULL,
+    unique_filename TEXT NOT NULL,
+    file_type TEXT NOT NULL,
+    file_size INTEGER NOT NULL,
+    cdn_url TEXT NOT NULL,
+    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
+); 

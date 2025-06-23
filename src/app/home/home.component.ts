@@ -21,6 +21,10 @@ export class HomeComponent {
   response = '';
   uploadStatus = '';
   
+  // Bunny.net upload properties
+  bunnyUploadStatus = '';
+  bunnyUploadStatusClass = '';
+  
   // Email properties
   emailMessage = '';
   emailSending = false;
@@ -142,6 +146,65 @@ export class HomeComponent {
           // Clear status after 5 seconds
           setTimeout(() => {
             this.uploadStatus = '';
+          }, 5000);
+        }
+      });
+  }
+
+  handleBunnyFileUpload(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Check file type - allow more formats for Bunny.net
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff', 'image/webp',
+      'image/heic', 'image/heif', 'image/cr2', 'image/nef', 'image/arw', 'image/dng',
+      'video/mp4', 'video/mov', 'video/avi', 'video/mkv', 'video/wmv', 'video/flv', 'video/webm',
+      'video/m4v', 'video/3gp', 'video/mts', 'video/m2ts', 'video/ts'
+    ];
+
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+      this.bunnyUploadStatus = 'Please select a supported photo or video file';
+      this.bunnyUploadStatusClass = 'error';
+      return;
+    }
+
+    // Check file size (max 100MB for Bunny.net)
+    if (file.size > 100 * 1024 * 1024) {
+      this.bunnyUploadStatus = 'File size must be less than 100MB';
+      this.bunnyUploadStatusClass = 'error';
+      return;
+    }
+
+    this.bunnyUploadStatus = 'Uploading to Bunny.net...';
+    this.bunnyUploadStatusClass = 'loading';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('username', this.currentUser?.username || '');
+
+    this.http.post('https://perry-api.sawatzky-perry.workers.dev/bunny-upload', formData)
+      .subscribe({
+        next: (response: any) => {
+          this.bunnyUploadStatus = 'Upload successful! File available at: ' + response.cdnUrl;
+          this.bunnyUploadStatusClass = 'success';
+          console.log('Bunny.net upload response:', response);
+          // Clear the file input
+          event.target.value = '';
+          // Clear status after 8 seconds (longer to show CDN URL)
+          setTimeout(() => {
+            this.bunnyUploadStatus = '';
+            this.bunnyUploadStatusClass = '';
+          }, 8000);
+        },
+        error: (error) => {
+          this.bunnyUploadStatus = 'Upload failed: ' + (error.error?.message || 'Unknown error');
+          this.bunnyUploadStatusClass = 'error';
+          console.error('Bunny.net upload error:', error);
+          // Clear status after 5 seconds
+          setTimeout(() => {
+            this.bunnyUploadStatus = '';
+            this.bunnyUploadStatusClass = '';
           }, 5000);
         }
       });

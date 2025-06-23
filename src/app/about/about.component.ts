@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 })
 export class AboutComponent implements OnInit {
   photos: any[] = [];
+  bunnyUploads: any[] = [];
   loading = true;
   error = '';
 
@@ -22,6 +23,7 @@ export class AboutComponent implements OnInit {
 
   ngOnInit() {
     this.loadPhotos();
+    this.loadBunnyUploads();
   }
 
   goBack() {
@@ -42,6 +44,18 @@ export class AboutComponent implements OnInit {
           this.error = 'Failed to load photos: ' + (error.error?.message || 'Unknown error');
           this.loading = false;
           console.error('Error loading photos:', error);
+        }
+      });
+  }
+
+  loadBunnyUploads() {
+    this.http.get('https://perry-api.sawatzky-perry.workers.dev/bunny-uploads')
+      .subscribe({
+        next: (response: any) => {
+          this.bunnyUploads = response.data || [];
+        },
+        error: (error) => {
+          console.error('Error loading Bunny.net uploads:', error);
         }
       });
   }
